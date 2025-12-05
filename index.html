@@ -29,29 +29,43 @@
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
-        
-        /* Ajuste fino para ícones Lucide */
-        .lucide { vertical-align: middle; }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef } = React;
         // Acessando Framer Motion do escopo global
         const { motion, AnimatePresence } = window.Motion;
         
-        // Componente Wrapper para ícones Lucide
-        // Necessário pois estamos usando a versão script tag, não o import de módulo
+        // Componente Wrapper SEGURO para ícones Lucide
+        // Correção: Usa manipulação manual do DOM dentro de um container isolado (ref)
+        // Isso evita conflitos com o React e usa a API padrão do Lucide para browser
         const Icon = ({ name, size = 24, className = "" }) => {
+            const elementRef = useRef(null);
+
             useEffect(() => {
-                if (window.lucide) {
-                    window.lucide.createIcons();
+                if (window.lucide && elementRef.current) {
+                    const parent = elementRef.current;
+                    
+                    // Limpa o conteúdo anterior e insere a tag <i> que o Lucide procura
+                    // Passamos width e height como atributos para o Lucide converter em SVG props
+                    parent.innerHTML = `<i data-lucide="${name}" class="${className}" width="${size}" height="${size}"></i>`;
+                    
+                    // Aciona o Lucide apenas dentro deste elemento específico
+                    window.lucide.createIcons({
+                        root: parent,
+                        nameAttr: 'data-lucide',
+                        attrs: {
+                            class: className // Garante que as classes Tailwind sejam aplicadas ao SVG
+                        }
+                    });
                 }
-            }, [name]); // Recria os ícones quando o nome muda
-            
-            return <i data-lucide={name} className={className} style={{ width: size, height: size, display: 'inline-block' }}></i>;
+            }, [name, size, className]);
+
+            // React renderiza apenas o container, o conteúdo é gerenciado pelo Lucide via useEffect
+            return <span ref={elementRef} className="inline-flex items-center justify-center" />;
         };
 
         const ENCTIInfographic = () => {
