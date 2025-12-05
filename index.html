@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub de Inovação: ENCTI 2024-2034</title>
+    
+    <!-- React e ReactDOM (Core do Framework) -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    
+    <!-- Babel (Para entender o código JSX no navegador) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS (Estilização) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Framer Motion (Animações) -->
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    
+    <!-- Lucide Icons (Ícones) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { margin: 0; background-color: #020617; font-family: 'Inter', sans-serif; }
+        
+        /* Custom scrollbar para navegadores Webkit */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        
+        /* Ajuste fino para ícones Lucide */
+        .lucide { vertical-align: middle; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        // Acessando Framer Motion do escopo global
+        const { motion, AnimatePresence } = window.Motion;
+        
+        // Componente Wrapper para ícones Lucide
+        // Necessário pois estamos usando a versão script tag, não o import de módulo
+        const Icon = ({ name, size = 24, className = "" }) => {
+            useEffect(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            }, [name]); // Recria os ícones quando o nome muda
+            
+            return <i data-lucide={name} className={className} style={{ width: size, height: size, display: 'inline-block' }}></i>;
+        };
+
+        const ENCTIInfographic = () => {
+            const [activeAxis, setActiveAxis] = useState(0);
+            const [activeHistory, setActiveHistory] = useState(0);
+            const [activeFlow, setActiveFlow] = useState(0);
+            
+            // Estados do Simulador
+            const [simInvestment, setSimInvestment] = useState(false); 
+            const [simGovernance, setSimGovernance] = useState(false);
+
+            // DADOS: Eixos Estruturantes
+            const axes = [
+                {
+                    id: 0,
+                    title: "Eixo I: O Sistema (SNCTI)",
+                    chapter: "Capítulo 5",
+                    iconName: "atom",
+                    color: "text-cyan-400",
+                    bg: "bg-cyan-400/10",
+                    border: "border-cyan-400/50",
+                    intro: "Este eixo é o alicerce de toda a estratégia. Ele trata da recuperação e expansão da infraestrutura científica do Brasil. O objetivo é integrar universidades, empresas e governo para que o conhecimento gerado não fique isolado, mas se transforme em soluções práticas.",
+                    sourceNote: "Baseado na análise de 'Expansão, Consolidação e Integração do SNCTI'.",
+                    details: [
+                        { subTitle: "Financiamento Estável", text: "Garantia de recursos contínuos através do FNDCT (Fundo Nacional de Desenvolvimento Científico e Tecnológico), evitando interrupções em pesquisas vitais.", subIcon: "arrow-right" },
+                        { subTitle: "Infraestrutura de Ponta", text: "Manutenção e expansão de grandes laboratórios nacionais, como o Sirius (acelerador de partículas) e o reator multipropósito (RMB).", subIcon: "microscope" },
+                        { subTitle: "Capital Humano", text: "Valorização de bolsas de pesquisa para reter talentos no Brasil e combater a 'fuga de cérebros' para o exterior.", subIcon: "users" }
+                    ]
+                },
+                {
+                    id: 1,
+                    title: "Eixo II: Indústria & Inovação",
+                    chapter: "Capítulo 6",
+                    iconName: "factory",
+                    color: "text-emerald-400",
+                    bg: "bg-emerald-400/10",
+                    border: "border-emerald-400/50",
+                    intro: "O Brasil precisa se reindustrializar, mas em novas bases: digitais e sustentáveis. Este eixo conecta a ciência diretamente às empresas, alinhando-se à 'Nova Indústria Brasil' (NIB) para aumentar a competitividade nacional no mercado global.",
+                    sourceNote: "Alinhado às 6 missões da Nova Indústria Brasil (Tabela 6.1).",
+                    details: [
+                        { subTitle: "Nova Indústria Brasil (NIB)", text: "Foco em missões estratégicas, como cadeias agroindustriais digitais e complexo da saúde, para gerar produtos de alto valor agregado.", subIcon: "target" },
+                        { subTitle: "Transição Energética", text: "Uso da biodiversidade e energias renováveis (hidrogênio verde) para descarbonizar a indústria e liderar a economia verde.", subIcon: "leaf" },
+                        { subTitle: "Transformação Digital", text: "Adoção massiva de Inteligência Artificial, Robótica e Internet das Coisas (IoT) para modernizar o chão de fábrica.", subIcon: "cpu" }
+                    ]
+                },
+                {
+                    id: 2,
+                    title: "Eixo III: Soberania Nacional",
+                    chapter: "Capítulo 7",
+                    iconName: "shield-check",
+                    color: "text-amber-400",
+                    bg: "bg-amber-400/10",
+                    border: "border-amber-400/50",
+                    intro: "Soberania hoje significa autonomia tecnológica. O Brasil não pode depender de outros países para itens essenciais. Este eixo foca em dominar tecnologias críticas para garantir a segurança e a independência do país em setores vitais.",
+                    sourceNote: "Foca em áreas de 'Alta Vulnerabilidade' (Tabela 7.1).",
+                    details: [
+                        { subTitle: "Autonomia em Saúde", text: "Produção nacional de IFAs (Insumos Farmacêuticos Ativos) para garantir remédios e vacinas sem depender de importação.", subIcon: "heart-handshake" },
+                        { subTitle: "Espaço e Nuclear", text: "Domínio do ciclo nuclear (para medicina e energia) e desenvolvimento de satélites e lançadores no Programa Espacial.", subIcon: "rocket" },
+                        { subTitle: "Minerais Críticos", text: "Processamento interno de minerais estratégicos (Lítio, Nióbio, Terras Raras) essenciais para baterias e chips.", subIcon: "atom" }
+                    ]
+                },
+                {
+                    id: 3,
+                    title: "Eixo IV: Desenvolvimento Social",
+                    chapter: "Capítulo 8",
+                    iconName: "heart-handshake",
+                    color: "text-rose-400",
+                    bg: "bg-rose-400/10",
+                    border: "border-rose-400/50",
+                    intro: "A ciência deve servir à população. Este eixo direciona a inovação para resolver problemas sociais concretos, reduzindo desigualdades e garantindo direitos básicos como alimentação, saúde e moradia digna.",
+                    sourceNote: "Inspirado em missões sociais estratégicas (Tabela 8.1).",
+                    details: [
+                        { subTitle: "Combate à Fome", text: "Uso de biotecnologia e agricultura familiar para garantir segurança alimentar e nutricional em todas as regiões.", subIcon: "leaf" },
+                        { subTitle: "Saúde e Bem-Estar", text: "Fortalecimento do SUS com tecnologias assistivas, telemedicina e tratamentos avançados acessíveis a todos.", subIcon: "heart-handshake" },
+                        { subTitle: "Tecnologia Social", text: "Soluções de baixo custo para saneamento, moradia e inclusão digital em comunidades vulneráveis e periferias.", subIcon: "users" }
+                    ]
+                }
+            ];
+
+            // DADOS: Histórico
+            const historyData = [
+                { id: 0, period: "Séc. XIX", title: "As Sementes da Ciência", iconName: "sprout", color: "text-purple-400", content: "Instituições pioneiras como o Jardim Botânico (1808) e o Museu Nacional (1818) lançaram as bases para a catalogação de riquezas naturais e construção da identidade científica nacional.", highlight: "Início da institucionalização" },
+                { id: 1, period: "Séc. XX", title: "Edificando os Pilares", iconName: "building-2", color: "text-purple-400", content: "Criação das bases modernas: CNPq e Capes (1951) para formação; Fiocruz e Embrapa (1973) revolucionando saúde e agricultura; Finep (1967) financiando a inovação.", highlight: "Estruturação do SNCTI" },
+                { id: 2, period: "1985 - 2023", title: "Consolidação e Conferências", iconName: "landmark", color: "text-purple-400", content: "Criação do MCTI (1985), Lei de Inovação e realização de 5 Conferências Nacionais que definiram a ciência como política de Estado e instrumento de soberania.", highlight: "Ciência como Política de Estado" },
+                { id: 3, period: "Hoje e Futuro", title: "O Mosaico e Desafios", iconName: "alert-triangle", color: "text-amber-400", content: "Um ecossistema robusto (ICTs, Empresas, Governo) enfrentando desafios críticos: integrar pesquisa e indústria, reduzir dependência tecnológica e garantir financiamento estável.", highlight: "O Caminho para a Soberania" }
+            ];
+
+            // DADOS: Gráficos Financeiros
+            const investmentComparison = [
+                { country: "Coreia do Sul", value: 4.9, color: "bg-indigo-500", width: "98%" },
+                { country: "Estados Unidos", value: 3.5, color: "bg-blue-500", width: "70%" },
+                { country: "China", value: 2.6, color: "bg-red-500", width: "52%" },
+                { country: "Brasil (Atual)", value: 1.2, color: "bg-emerald-500", width: "24%", highlight: true },
+            ];
+
+            const leverageData = [
+                { label: "EUA", multiplier: 10, height: "h-32", color: "bg-blue-500" },
+                { label: "Coreia", multiplier: 8, height: "h-24", color: "bg-indigo-500" },
+                { label: "China", multiplier: 5, height: "h-16", color: "bg-red-500" },
+                { label: "Brasil", multiplier: 2, height: "h-8", color: "bg-emerald-500", highlight: true },
+            ];
+
+            // DADOS: Fluxo de Implementação
+            const flowSteps = [
+                { id: 0, title: "Fundação", subtitle: "Governança & Financiamento", iconName: "settings", color: "text-blue-400", bg: "bg-blue-500", actions: ["Instituir governança integrada (MCTI + Ministérios)", "Garantir FNDCT estável e expansível", "Tratar P&D como investimento (não gasto corrente)"] },
+                { id: 1, title: "Capacitação", subtitle: "Talentos & Infraestrutura", iconName: "users", color: "text-indigo-400", bg: "bg-indigo-500", actions: ["Revalorizar bolsas e carreiras científicas", "Renovar laboratórios e grandes equipamentos (Ex: Sirius)", "Formação massiva em áreas críticas (IA, Bio)"] },
+                { id: 2, title: "Ação", subtitle: "Inovação & Soberania", iconName: "zap", color: "text-amber-400", bg: "bg-amber-500", actions: ["Aproximação real entre ICTs e Empresas", "Uso de compras públicas e encomendas tecnológicas", "Programas nacionais para semicondutores e fármacos"] },
+                { id: 3, title: "Impacto", subtitle: "Sociedade & Avaliação", iconName: "check-circle", color: "text-emerald-400", bg: "bg-emerald-500", actions: ["Ciência para reduzir desigualdades regionais", "Popularização da ciência nas escolas e mídia", "Sistema permanente de monitoramento de metas"] }
+            ];
+
+            // Lógica da Matriz 2x2 do Simulador
+            const getScenario = () => {
+                if (!simInvestment && !simGovernance) {
+                    return { title: "Dependência Tecnológica", iconName: "x-circle", color: "text-red-400", text: "Cenário de estagnação. Baixo investimento e governança fragmentada levam à desindustrialização, fuga de cérebros e dependência total de importações. A ciência sobrevive, mas não transforma." };
+                } else if (simInvestment && !simGovernance) {
+                    return { title: "Desperdício de Potencial", iconName: "alert-circle", color: "text-amber-400", text: "Temos recursos (2% do PIB), mas falta estratégia unificada. O dinheiro é pulverizado em ações desconectadas das necessidades da indústria e da sociedade. Ilhas de excelência isoladas." };
+                } else if (!simInvestment && simGovernance) {
+                    return { title: "Resiliência Limitada", iconName: "shield-check", color: "text-blue-400", text: "O sistema é organizado e eficiente, mas falta combustível. A ciência brasileira faz muito com pouco, mas é incapaz de competir globalmente ou escalar soluções industriais complexas." };
+                } else {
+                    return { title: "Brasil Soberano (Meta 2034)", iconName: "rocket", color: "text-emerald-400", text: "O Cenário Alvo. Recursos robustos encontram gestão eficiente. A ciência gera inovação industrial, resolve problemas sociais e garante autonomia em áreas críticas (saúde, defesa, energia)." };
+                }
+            };
+
+            const scenario = getScenario();
+
+            return (
+                <div className="min-h-screen bg-slate-950 text-white font-sans p-4 md:p-8 flex flex-col items-center relative">
+                    
+                    {/* Logomarca Institucional - Canto Superior Direito */}
+                    <div className="absolute top-6 right-6 z-50">
+                        <img 
+                            src="https://i.postimg.cc/HsLcVjtk/gti-senai.png" 
+                            alt="Logo GTI SENAI" 
+                            className="h-16 w-auto object-contain hover:scale-105 transition-transform drop-shadow-lg"
+                        />
+                    </div>
+
+                    {/* Header */}
+                    <motion.header 
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-center mb-16 max-w-4xl pt-12 md:pt-16"
+                    >
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-4 rounded-full bg-blue-900/30 border border-blue-500/30 text-blue-300 text-xs font-bold tracking-widest uppercase">
+                            <Icon name="book-open" size={14} />
+                            Estratégia Nacional 2024-2034
+                        </div>
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-300 to-emerald-400 filter drop-shadow-lg">
+                            Hub de Inovação: ENCTI
+                        </h1>
+                        <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 mb-8 backdrop-blur-sm text-left">
+                            <p className="text-slate-300 text-lg leading-relaxed">
+                                A <strong>Estratégia Nacional de Ciência, Tecnologia e Inovação (ENCTI 2024-2034)</strong> é o plano mestre do Brasil para a próxima década. Mas para entender para onde vamos, precisamos saber de onde viemos. Esta jornada interativa conecta o passado de construção institucional ao futuro de <strong>soberania</strong> e <strong>justiça social</strong>.
+                            </p>
+                        </div>
+                    </motion.header>
+
+                    {/* 1. A JORNADA (Timeline) */}
+                    <section className="w-full max-w-7xl mb-24 relative">
+                        <div className="absolute left-4 top-10 bottom-0 w-0.5 bg-gradient-to-b from-purple-500 to-transparent hidden lg:block opacity-30"></div>
+                        <div className="flex items-center gap-3 mb-8 pl-2 border-l-4 border-purple-500 ml-4 lg:ml-0">
+                            <Icon name="history" className="text-purple-400" size={32} />
+                            <div>
+                                <h2 className="text-2xl md:text-3xl font-bold text-white">1. A Jornada da Inovação</h2>
+                                <p className="text-slate-400 text-sm">Como o Brasil construiu seu alicerce científico (Séc. XIX - Hoje)</p>
+                            </div>
+                        </div>
+                        <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 mb-8 ml-4 lg:ml-8">
+                            <p className="text-slate-300 leading-relaxed">
+                                O SNCTI não surgiu da noite para o dia. Ele é resultado de séculos de esforço para catalogar riquezas, formar cérebros e criar instituições. Entenda os quatro períodos que nos trouxeram até aqui:
+                            </p>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 ml-4 lg:ml-8">
+                            {historyData.map((item) => (
+                                <motion.div
+                                    key={item.id}
+                                    whileHover={{ y: -5 }}
+                                    onClick={() => setActiveHistory(item.id)}
+                                    className={`cursor-pointer p-5 rounded-2xl border transition-all duration-300 relative overflow-hidden group
+                                        ${activeHistory === item.id ? 'bg-slate-800 border-purple-500/50 shadow-lg shadow-purple-900/20' : 'bg-slate-900/40 border-slate-800 hover:bg-slate-800'}
+                                    `}
+                                >
+                                    <div className={`mb-3 ${activeHistory === item.id ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-300'}`}>
+                                        <Icon name={item.iconName} size={24} />
+                                    </div>
+                                    <div className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1 flex items-center gap-2">
+                                        <Icon name="calendar" size={10} />
+                                        {item.period}
+                                    </div>
+                                    <h3 className={`font-bold text-lg mb-2 leading-tight ${activeHistory === item.id ? 'text-white' : 'text-slate-400'}`}>
+                                        {item.title}
+                                    </h3>
+                                    <AnimatePresence>
+                                        {activeHistory === item.id && (
+                                            <motion.div
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: 'auto' }}
+                                                exit={{ opacity: 0, height: 0 }}
+                                                className="overflow-hidden"
+                                            >
+                                                <p className="text-sm text-slate-300 mt-2 leading-relaxed border-t border-slate-700 pt-2">
+                                                    {item.content}
+                                                </p>
+                                                <div className="mt-3 text-xs font-semibold text-purple-300 bg-purple-900/20 px-2 py-1 rounded inline-block">
+                                                    {item.highlight}
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </section>
+
+                    {/* 2. O PLANO (EIXOS) */}
+                    <section className="w-full max-w-7xl mb-24 relative">
+                        <div className="absolute left-4 top-10 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 to-cyan-500 hidden lg:block opacity-30"></div>
+                        <div className="flex items-center gap-3 mb-8 pl-2 border-l-4 border-blue-500 ml-4 lg:ml-0">
+                            <Icon name="rocket" className="text-blue-400" size={32} />
+                            <div>
+                                <h2 className="text-2xl md:text-3xl font-bold text-white">2. O Plano para o Futuro</h2>
+                                <p className="text-slate-400 text-sm">Os 4 Eixos Estruturantes da ENCTI (2024-2034)</p>
+                            </div>
+                        </div>
+                        <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 mb-8 ml-4 lg:ml-8">
+                            <p className="text-slate-300 leading-relaxed">
+                                Com uma base consolidada, o Brasil agora mira o futuro. A nova estratégia não é apenas sobre "fazer ciência", mas sobre usá-la para resolver problemas reais. Navegue pelos eixos abaixo:
+                            </p>
+                        </div>
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 ml-4 lg:ml-8">
+                            <div className="lg:col-span-4 flex flex-col gap-3">
+                                <h3 className="text-slate-500 uppercase text-xs font-bold tracking-widest mb-2 px-2">Clique para Explorar</h3>
+                                {axes.map((axis) => (
+                                    <motion.button
+                                        key={axis.id}
+                                        onClick={() => setActiveAxis(axis.id)}
+                                        whileHover={{ scale: 1.02, x: 4 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className={`p-4 rounded-xl text-left transition-all duration-300 border backdrop-blur-md flex items-center gap-4 relative overflow-hidden group
+                                            ${activeAxis === axis.id ? `${axis.bg} ${axis.border} shadow-[0_0_20px_-5px_rgba(0,0,0,0.3)] ring-1 ring-white/10` : 'bg-slate-900/40 border-slate-800 hover:bg-slate-800 hover:border-slate-600'}
+                                        `}
+                                    >
+                                        {activeAxis === axis.id && (
+                                            <motion.div layoutId="activeIndicator" className={`absolute left-0 top-0 bottom-0 w-1 ${axis.color.replace('text', 'bg')}`} />
+                                        )}
+                                        <div className={`p-3 rounded-lg shadow-inner ${activeAxis === axis.id ? 'bg-slate-950/30' : 'bg-slate-800/50'} ${axis.color}`}>
+                                            <Icon name={axis.iconName} size={24} />
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className={`font-bold text-lg leading-tight ${activeAxis === axis.id ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`}>
+                                                {axis.title}
+                                            </h3>
+                                            <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                                                <Icon name="book-open" size={10} /> {axis.chapter}
+                                            </p>
+                                        </div>
+                                        {activeAxis === axis.id && <Icon name="arrow-right" size={20} className={`${axis.color} opacity-80`} />}
+                                    </motion.button>
+                                ))}
+                            </div>
+                            <div className="lg:col-span-8">
+                                <AnimatePresence mode="wait">
+                                    <motion.div
+                                        key={activeAxis}
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        transition={{ duration: 0.4, ease: "easeOut" }}
+                                        className={`h-full flex flex-col p-6 md:p-8 rounded-3xl border ${axes[activeAxis].border} ${axes[activeAxis].bg} backdrop-blur-2xl bg-opacity-5 shadow-2xl relative overflow-hidden`}
+                                    >
+                                        <div className={`absolute -right-32 -top-32 w-96 h-96 rounded-full blur-[100px] opacity-15 bg-${axes[activeAxis].color.split('-')[1]}-500 pointer-events-none`}></div>
+                                        <div className="relative z-10 flex-1 flex flex-col">
+                                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 border-b border-white/10 pb-6">
+                                                <div className="flex items-center gap-4">
+                                                    <div className={`p-3 rounded-xl bg-slate-950/30 shadow-lg ${axes[activeAxis].color}`}>
+                                                        <Icon name={axes[activeAxis].iconName} size={24} />
+                                                    </div>
+                                                    <div>
+                                                        <h2 className="text-2xl md:text-3xl font-bold text-white">{axes[activeAxis].title}</h2>
+                                                        <div className="flex items-center gap-2 mt-1">
+                                                            <span className="text-xs font-medium px-2 py-0.5 rounded bg-white/10 text-slate-300 border border-white/5">Fonte: {axes[activeAxis].chapter}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="mb-8">
+                                                <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                                    <Icon name="info" size={14} /> Contexto Estratégico
+                                                </h4>
+                                                <p className="text-lg text-slate-200 leading-relaxed font-light">{axes[activeAxis].intro}</p>
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                                {axes[activeAxis].details.map((detail, index) => (
+                                                    <motion.div key={index} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 + 0.2 }} className={`p-5 rounded-2xl bg-slate-950/40 border border-white/5 hover:border-${axes[activeAxis].color.split('-')[1]}-400/30 transition-all hover:bg-slate-950/60 ${index === 2 ? 'md:col-span-2' : ''}`}>
+                                                        <div className={`flex items-center gap-2 mb-3 ${axes[activeAxis].color} font-bold uppercase text-xs tracking-widest`}>
+                                                            <Icon name={detail.subIcon} size={16} />
+                                                            {detail.subTitle}
+                                                        </div>
+                                                        <p className="text-slate-300 text-sm leading-relaxed">{detail.text}</p>
+                                                    </motion.div>
+                                                ))}
+                                            </div>
+                                            <div className="mt-auto pt-4 border-t border-white/5 flex items-center gap-2 text-xs text-slate-500 italic">
+                                                <Icon name="book-open" size={12} />
+                                                <span>Nota: {axes[activeAxis].sourceNote}</span>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                </AnimatePresence>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* 3. CASE EMBRAPII */}
+                    <section className="w-full max-w-7xl mb-24 relative">
+                        <div className="absolute left-4 top-10 bottom-0 w-0.5 bg-gradient-to-b from-cyan-500 to-orange-500 hidden lg:block opacity-30"></div>
+                        <div className="flex items-center gap-3 mb-8 pl-2 border-l-4 border-orange-500 ml-4 lg:ml-0">
+                            <Icon name="briefcase" className="text-orange-400" size={32} />
+                            <div>
+                                <h2 className="text-2xl md:text-3xl font-bold text-white">3. Case de Sucesso: O Modelo EMBRAPII</h2>
+                                <p className="text-slate-400 text-sm">A Ponte eficiente entre Universidade e Empresa (Capítulo 3)</p>
+                            </div>
+                        </div>
+                        <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 mb-8 ml-4 lg:ml-8">
+                            <p className="text-slate-300 leading-relaxed">
+                                Citada na ENCTI como exemplo a ser seguido, a EMBRAPII resolve o maior gargalo da inovação: o risco. Seu modelo "1/3" divide a conta, acelera projetos e conecta a ciência acadêmica às necessidades reais da fábrica.
+                            </p>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ml-4 lg:ml-8">
+                            <div className="p-6 rounded-2xl bg-slate-900/40 border border-slate-800 hover:border-orange-500/30 transition-all group">
+                                <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center mb-4 group-hover:bg-orange-500/20 group-hover:text-orange-400 transition-colors">
+                                    <Icon name="zap" className="text-slate-400 group-hover:text-orange-400" size={24} />
+                                </div>
+                                <h3 className="text-lg font-bold text-white mb-2">Desburocratização</h3>
+                                <p className="text-sm text-slate-400 leading-relaxed">
+                                    Diferente de editais tradicionais demorados, a Embrapii opera em <strong>fluxo contínuo</strong>. A empresa tem a ideia, procura a unidade e o projeto começa rápido.
+                                </p>
+                            </div>
+                            <div className="p-6 rounded-2xl bg-slate-800 border border-orange-500/50 shadow-lg shadow-orange-900/10 relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-3 opacity-10">
+                                    <Icon name="pie-chart" size={80} />
+                                </div>
+                                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                    <Icon name="dollar-sign" size={18} className="text-orange-400" />
+                                    A Matemática do Risco
+                                </h3>
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between text-xs font-semibold text-slate-300 mb-1">
+                                        <span>Investimento Total do Projeto</span>
+                                    </div>
+                                    <div className="flex h-6 w-full rounded-full overflow-hidden">
+                                        <div className="w-1/3 bg-orange-500 flex items-center justify-center text-[10px] text-white font-bold" title="Recursos não-reembolsáveis">Gov</div>
+                                        <div className="w-1/3 bg-emerald-500 flex items-center justify-center text-[10px] text-white font-bold" title="Contrapartida Financeira">Empresa</div>
+                                        <div className="w-1/3 bg-blue-500 flex items-center justify-center text-[10px] text-white font-bold" title="Recursos Econômicos (Equipe/Labs)">Unidade</div>
+                                    </div>
+                                    <div className="flex justify-between text-[10px] text-slate-400 mt-2">
+                                        <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-orange-500"></div>EMBRAPII (~1/3)</span>
+                                        <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-emerald-500"></div>Empresa (~1/3)</span>
+                                        <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-blue-500"></div>ICT (~1/3)</span>
+                                    </div>
+                                    <p className="text-xs text-slate-300 mt-3 border-t border-slate-700 pt-3">
+                                        O governo assume parte do risco financeiro, incentivando a empresa a inovar.
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="p-6 rounded-2xl bg-slate-900/40 border border-slate-800 hover:border-orange-500/30 transition-all group">
+                                <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center mb-4 group-hover:bg-orange-500/20 group-hover:text-orange-400 transition-colors">
+                                    <Icon name="map-pin" className="text-slate-400 group-hover:text-orange-400" size={24} />
+                                </div>
+                                <h3 className="text-lg font-bold text-white mb-2">Capilaridade</h3>
+                                <div className="text-3xl font-black text-white mb-1">93</div>
+                                <p className="text-xs font-bold text-orange-400 uppercase tracking-widest mb-2">Unidades Credenciadas</p>
+                                <p className="text-sm text-slate-400 leading-relaxed">
+                                    Centros de excelência espalhados pelo Brasil (Universidades e Institutos) prontos para resolver desafios industriais específicos.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* 4. FLUXO IMPLEMENTAÇÃO */}
+                    <section className="w-full max-w-7xl mb-24 relative">
+                        <div className="absolute left-4 top-10 bottom-0 w-0.5 bg-gradient-to-b from-orange-500 to-cyan-500 hidden lg:block opacity-30"></div>
+                        <div className="flex items-center gap-3 mb-8 pl-2 border-l-4 border-cyan-500 ml-4 lg:ml-0">
+                            <Icon name="play-circle" className="text-cyan-400" size={32} />
+                            <div>
+                                <h2 className="text-2xl md:text-3xl font-bold text-white">4. O Fluxo da Implementação</h2>
+                                <p className="text-slate-400 text-sm">O "Como Fazer": Das bases à avaliação contínua (Capítulo 10)</p>
+                            </div>
+                        </div>
+                        <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 mb-8 ml-4 lg:ml-8">
+                            <p className="text-slate-300 leading-relaxed">
+                                A ENCTI define um roteiro claro de execução. Clique nas etapas abaixo para ver as recomendações práticas:
+                            </p>
+                        </div>
+                        <div className="ml-4 lg:ml-8">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
+                                <div className="hidden md:block absolute top-8 left-0 right-0 h-1 bg-slate-800 z-0"></div>
+                                {flowSteps.map((step) => (
+                                    <motion.div
+                                        key={step.id}
+                                        onClick={() => setActiveFlow(step.id)}
+                                        whileHover={{ y: -5 }}
+                                        className={`relative z-10 cursor-pointer flex flex-col h-full rounded-2xl border p-1 transition-all duration-300 ${activeFlow === step.id ? 'border-white/20 bg-slate-800 scale-105 shadow-xl' : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}
+                                    >
+                                        <div className={`p-4 rounded-xl flex flex-col items-center text-center transition-colors ${activeFlow === step.id ? 'bg-slate-900' : ''}`}>
+                                            <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 text-white shadow-lg ${step.bg} ${activeFlow === step.id ? 'ring-4 ring-white/10' : ''}`}>
+                                                <Icon name={step.iconName} size={24} />
+                                            </div>
+                                            <h3 className={`font-bold text-lg ${activeFlow === step.id ? 'text-white' : 'text-slate-400'}`}>{step.title}</h3>
+                                            <p className="text-xs text-slate-500 uppercase font-semibold tracking-wider">{step.subtitle}</p>
+                                        </div>
+                                        <AnimatePresence>
+                                            {activeFlow === step.id && (
+                                                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="px-4 pb-4 overflow-hidden">
+                                                    <div className="w-full h-px bg-slate-700 my-3"></div>
+                                                    <ul className="space-y-3">
+                                                        {step.actions.map((action, idx) => (
+                                                            <li key={idx} className="flex items-start gap-2 text-sm text-slate-300">
+                                                                <span className={`mt-1.5 w-1.5 h-1.5 rounded-full ${step.bg} flex-shrink-0`}></span>
+                                                                {action}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* 5. DESAFIO FINANCEIRO */}
+                    <section className="w-full max-w-7xl mb-24 relative">
+                        <div className="absolute left-4 top-10 bottom-0 w-0.5 bg-gradient-to-b from-cyan-500 to-purple-500 hidden lg:block opacity-30"></div>
+                        <div className="flex items-center gap-3 mb-8 pl-2 border-l-4 border-emerald-500 ml-4 lg:ml-0">
+                            <Icon name="trending-up" className="text-emerald-400" size={32} />
+                            <div>
+                                <h2 className="text-2xl md:text-3xl font-bold text-white">5. O Desafio da Execução</h2>
+                                <p className="text-slate-400 text-sm">A Realidade Financeira e a Meta de 2% do PIB</p>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 ml-4 lg:ml-8">
+                            <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
+                                <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2"><Icon name="globe" size={18} className="text-slate-400" />Comparativo Global: P&D (% do PIB)</h3>
+                                <p className="text-slate-400 text-sm mb-6 leading-relaxed">Para competir globalmente, o Brasil precisa dobrar seus investimentos.</p>
+                                <div className="flex flex-col gap-4">
+                                    {investmentComparison.map((item, idx) => (
+                                        <div key={idx} className="relative">
+                                            <div className="flex justify-between text-xs font-bold uppercase tracking-wider mb-1">
+                                                <span className={item.highlight ? "text-emerald-400" : "text-slate-300"}>{item.country}</span>
+                                                <span className={item.highlight ? "text-emerald-400" : "text-slate-400"}>{item.value}%</span>
+                                            </div>
+                                            <div className="w-full bg-slate-800 rounded-full h-3 overflow-hidden">
+                                                <motion.div initial={{ width: 0 }} whileInView={{ width: item.width }} transition={{ duration: 1, delay: 0.2 }} className={`h-full rounded-full ${item.color}`} />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
+                                <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2"><Icon name="dollar-sign" size={18} className="text-slate-400" />O "Efeito Alavanca" (Público vs Privado)</h3>
+                                <p className="text-slate-400 text-sm mb-6 leading-relaxed">Quanto o setor privado investe para cada R$ 1 público?</p>
+                                <div className="flex items-end justify-around h-48 border-b border-slate-700 pb-2 px-2">
+                                    {leverageData.map((item, idx) => (
+                                        <div key={idx} className="flex flex-col items-center gap-2 w-full group">
+                                            <span className={`text-sm font-bold ${item.highlight ? 'text-emerald-400 scale-110' : 'text-slate-400'} transition-transform`}>{item.multiplier}x</span>
+                                            <motion.div initial={{ height: 0 }} whileInView={{ height: item.height.replace('h-', '') * 4 }} className={`w-12 md:w-16 rounded-t-lg ${item.color} ${item.highlight ? 'shadow-[0_0_20px_-5px_rgba(16,185,129,0.6)]' : 'opacity-80'}`} style={{ height: item.multiplier * 12 }} />
+                                            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{item.label}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* 6. SIMULADOR */}
+                    <section className="w-full max-w-7xl mb-24 relative">
+                        <div className="flex items-center gap-3 mb-8 pl-2 border-l-4 border-purple-500 ml-4 lg:ml-0">
+                            <Icon name="compass" className="text-purple-400" size={32} />
+                            <div>
+                                <h2 className="text-2xl md:text-3xl font-bold text-white">6. Simulador de Futuros</h2>
+                                <p className="text-slate-400 text-sm">Defina os parâmetros e descubra qual futuro aguarda o Brasil</p>
+                            </div>
+                        </div>
+                        <div className="ml-4 lg:ml-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+                            <div className="lg:col-span-4 space-y-6">
+                                <div className="p-6 rounded-2xl bg-slate-800 border border-slate-700">
+                                    <div className="flex items-center gap-2 mb-4 text-emerald-400"><Icon name="dollar-sign" size={20} /><h3 className="font-bold">Investimento em P&D</h3></div>
+                                    <p className="text-xs text-slate-400 mb-4 h-10">{simInvestment ? "Meta Atingida: 2% do PIB, com forte participação privada e FNDCT estável." : "Cenário Atual: Contingenciamento, instabilidade e dependência de verba pública."}</p>
+                                    <div className="flex items-center justify-between bg-slate-900 p-1 rounded-full border border-slate-700">
+                                        <button onClick={() => setSimInvestment(false)} className={`flex-1 py-2 rounded-full text-xs font-bold transition-all ${!simInvestment ? 'bg-slate-700 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}>Baixo</button>
+                                        <button onClick={() => setSimInvestment(true)} className={`flex-1 py-2 rounded-full text-xs font-bold transition-all ${simInvestment ? 'bg-emerald-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}>Alto</button>
+                                    </div>
+                                </div>
+                                <div className="p-6 rounded-2xl bg-slate-800 border border-slate-700">
+                                    <div className="flex items-center gap-2 mb-4 text-blue-400"><Icon name="sliders" size={20} /><h3 className="font-bold">Governança</h3></div>
+                                    <p className="text-xs text-slate-400 mb-4 h-10">{simGovernance ? "Integrada: Missões claras, articulação entre Ministérios e Foco em Resultados." : "Fragmentada: Ações isoladas, sobreposição de esforços e burocracia excessiva."}</p>
+                                    <div className="flex items-center justify-between bg-slate-900 p-1 rounded-full border border-slate-700">
+                                        <button onClick={() => setSimGovernance(false)} className={`flex-1 py-2 rounded-full text-xs font-bold transition-all ${!simGovernance ? 'bg-slate-700 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}>Isolada</button>
+                                        <button onClick={() => setSimGovernance(true)} className={`flex-1 py-2 rounded-full text-xs font-bold transition-all ${simGovernance ? 'bg-blue-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}>Integrada</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="lg:col-span-8">
+                                <div className="relative h-full min-h-[300px] rounded-2xl bg-slate-900 border border-slate-800 p-6 flex items-center justify-center overflow-hidden">
+                                    <div className="absolute inset-0 grid grid-cols-2 grid-rows-2">
+                                        <div className={`border-r border-b border-slate-800 transition-colors duration-500 ${(!simInvestment && !simGovernance) ? 'bg-red-500/10' : ''}`}></div>
+                                        <div className={`border-b border-slate-800 transition-colors duration-500 ${(!simInvestment && simGovernance) ? 'bg-blue-500/10' : ''}`}></div>
+                                        <div className={`border-r border-slate-800 transition-colors duration-500 ${(simInvestment && !simGovernance) ? 'bg-amber-500/10' : ''}`}></div>
+                                        <div className={`transition-colors duration-500 ${(simInvestment && simGovernance) ? 'bg-emerald-500/10' : ''}`}></div>
+                                    </div>
+                                    <div className="absolute top-2 left-1/2 -translate-x-1/2 text-[10px] uppercase font-bold text-slate-500 tracking-widest">Governança Integrada</div>
+                                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] uppercase font-bold text-slate-500 tracking-widest">Governança Isolada</div>
+                                    <div className="absolute left-2 top-1/2 -translate-y-1/2 -rotate-90 text-[10px] uppercase font-bold text-slate-500 tracking-widest">Baixo Investimento</div>
+                                    <div className="absolute right-2 top-1/2 -translate-y-1/2 rotate-90 text-[10px] uppercase font-bold text-slate-500 tracking-widest">Alto Investimento</div>
+                                    <motion.div key={`${simInvestment}-${simGovernance}`} initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className={`relative z-10 max-w-md p-6 rounded-2xl border bg-slate-800 shadow-2xl flex flex-col items-center text-center ${(!simInvestment && !simGovernance) ? 'border-red-500/50 shadow-red-900/20' : ''} ${(simInvestment && !simGovernance) ? 'border-amber-500/50 shadow-amber-900/20' : ''} ${(!simInvestment && simGovernance) ? 'border-blue-500/50 shadow-blue-900/20' : ''} ${(simInvestment && simGovernance) ? 'border-emerald-500/50 shadow-emerald-900/20' : ''}`}>
+                                        <div className={`mb-4 p-3 rounded-full bg-slate-900 ${(!simInvestment && !simGovernance) ? 'text-red-500' : ''} ${(simInvestment && !simGovernance) ? 'text-amber-500' : ''} ${(!simInvestment && simGovernance) ? 'text-blue-500' : ''} ${(simInvestment && simGovernance) ? 'text-emerald-500' : ''}`}>
+                                            <Icon name={scenario.iconName} size={40} />
+                                        </div>
+                                        <h2 className={`text-2xl font-bold mb-2 ${scenario.color}`}>{scenario.title}</h2>
+                                        <p className="text-sm text-slate-300 leading-relaxed">{scenario.text}</p>
+                                    </motion.div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <footer className="mt-20 py-8 border-t border-slate-800 w-full text-center">
+                        <p className="text-slate-500 text-sm font-medium">Baseado no documento oficial "ENCTI 2024-2034 - Versão Final Corrigida"</p>
+                        <p className="text-slate-600 text-xs mt-2 mb-6">Ministério da Ciência, Tecnologia e Inovação (MCTI) • Governo Federal</p>
+                        
+                        <div className="inline-block px-6 py-3 rounded-xl bg-slate-900 border border-slate-800">
+                            <p className="text-slate-400 text-sm font-semibold">
+                                Elaborado por <span className="text-blue-400">Antonio Balduino Neto</span>
+                            </p>
+                            <p className="text-slate-500 text-xs mt-1">
+                                Especialista em Foresight Estratégico e Design de Futuros
+                            </p>
+                        </div>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<ENCTIInfographic />);
+    </script>
+</body>
+</html>
