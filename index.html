@@ -40,31 +40,21 @@
         const { motion, AnimatePresence } = window.Motion;
         
         // Componente Wrapper SEGURO para ícones Lucide
-        // Correção: Usa manipulação manual do DOM dentro de um container isolado (ref)
-        // Isso evita conflitos com o React e usa a API padrão do Lucide para browser
         const Icon = ({ name, size = 24, className = "" }) => {
             const elementRef = useRef(null);
 
             useEffect(() => {
                 if (window.lucide && elementRef.current) {
                     const parent = elementRef.current;
-                    
-                    // Limpa o conteúdo anterior e insere a tag <i> que o Lucide procura
-                    // Passamos width e height como atributos para o Lucide converter em SVG props
                     parent.innerHTML = `<i data-lucide="${name}" class="${className}" width="${size}" height="${size}"></i>`;
-                    
-                    // Aciona o Lucide apenas dentro deste elemento específico
                     window.lucide.createIcons({
                         root: parent,
                         nameAttr: 'data-lucide',
-                        attrs: {
-                            class: className // Garante que as classes Tailwind sejam aplicadas ao SVG
-                        }
+                        attrs: { class: className }
                     });
                 }
             }, [name, size, className]);
 
-            // React renderiza apenas o container, o conteúdo é gerenciado pelo Lucide via useEffect
             return <span ref={elementRef} className="inline-flex items-center justify-center" />;
         };
 
@@ -194,12 +184,12 @@
             return (
                 <div className="min-h-screen bg-slate-950 text-white font-sans p-4 md:p-8 flex flex-col items-center relative">
                     
-                    {/* Logomarca Institucional - Canto Superior Direito */}
+                    {/* Logomarca Institucional - Canto Superior Direito (Ajustada para h-12) */}
                     <div className="absolute top-6 right-6 z-50">
                         <img 
                             src="https://i.postimg.cc/HsLcVjtk/gti-senai.png" 
                             alt="Logo GTI SENAI" 
-                            className="h-16 w-auto object-contain hover:scale-105 transition-transform drop-shadow-lg"
+                            className="h-12 w-auto object-contain hover:scale-105 transition-transform drop-shadow-lg"
                         />
                     </div>
 
@@ -391,7 +381,7 @@
                         </div>
                         <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 mb-8 ml-4 lg:ml-8">
                             <p className="text-slate-300 leading-relaxed">
-                                Citada na ENCTI como exemplo a ser seguido, a EMBRAPII resolve o maior gargalo da inovação: o risco. Seu modelo "1/3" divide a conta, acelera projetos e conecta a ciência acadêmica às necessidades reais da fábrica.
+                                Citada na ENCTI como referência, a EMBRAPII revoluciona a inovação com um processo simples e ágil: primeiro, a indústria identifica um desafio tecnológico; em seguida, procura uma das 93 Unidades Credenciadas com a competência técnica necessária. A negociação é direta, sem editais complexos. Uma vez fechado o acordo, o projeto inicia imediatamente, com custos e riscos divididos entre empresa, governo e centro de pesquisa. É a ciência saindo do papel para a fábrica em tempo recorde.
                             </p>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ml-4 lg:ml-8">
@@ -468,7 +458,9 @@
                                         key={step.id}
                                         onClick={() => setActiveFlow(step.id)}
                                         whileHover={{ y: -5 }}
-                                        className={`relative z-10 cursor-pointer flex flex-col h-full rounded-2xl border p-1 transition-all duration-300 ${activeFlow === step.id ? 'border-white/20 bg-slate-800 scale-105 shadow-xl' : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}
+                                        className={`relative z-10 cursor-pointer flex flex-col h-full rounded-2xl border p-1 transition-all duration-300
+                                            ${activeFlow === step.id ? 'border-white/20 bg-slate-800 scale-105 shadow-xl' : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}
+                                        `}
                                     >
                                         <div className={`p-4 rounded-xl flex flex-col items-center text-center transition-colors ${activeFlow === step.id ? 'bg-slate-900' : ''}`}>
                                             <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 text-white shadow-lg ${step.bg} ${activeFlow === step.id ? 'ring-4 ring-white/10' : ''}`}>
@@ -479,7 +471,12 @@
                                         </div>
                                         <AnimatePresence>
                                             {activeFlow === step.id && (
-                                                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="px-4 pb-4 overflow-hidden">
+                                                <motion.div
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: 'auto' }}
+                                                    exit={{ opacity: 0, height: 0 }}
+                                                    className="px-4 pb-4 overflow-hidden"
+                                                >
                                                     <div className="w-full h-px bg-slate-700 my-3"></div>
                                                     <ul className="space-y-3">
                                                         {step.actions.map((action, idx) => (
@@ -508,10 +505,24 @@
                                 <p className="text-slate-400 text-sm">A Realidade Financeira e a Meta de 2% do PIB</p>
                             </div>
                         </div>
+                        
+                        {/* NOVO: Parágrafo Didático */}
+                        <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 mb-8 ml-4 lg:ml-8">
+                            <p className="text-slate-300 leading-relaxed">
+                                A visão é ambiciosa, mas a realidade impõe barreiras. Para transformar o Brasil em uma potência tecnológica, não basta vontade política; é preciso <strong>combustível financeiro</strong>. Os dados abaixo revelam o tamanho do "abismo" que separa o Brasil das nações líderes e onde exatamente precisamos atuar para fechar essa conta.
+                            </p>
+                        </div>
+
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 ml-4 lg:ml-8">
+                            {/* Gráfico 1 */}
                             <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
-                                <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2"><Icon name="globe" size={18} className="text-slate-400" />Comparativo Global: P&D (% do PIB)</h3>
-                                <p className="text-slate-400 text-sm mb-6 leading-relaxed">Para competir globalmente, o Brasil precisa dobrar seus investimentos.</p>
+                                <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
+                                    <Icon name="globe" size={18} className="text-slate-400" />
+                                    Comparativo Global: P&D (% do PIB)
+                                </h3>
+                                <p className="text-slate-400 text-sm mb-6 leading-relaxed">
+                                    Para competir globalmente, o Brasil precisa dobrar seus investimentos. Enquanto líderes investem acima de 3%, o Brasil estagnou em ~1,2% nas últimas duas décadas.
+                                </p>
                                 <div className="flex flex-col gap-4">
                                     {investmentComparison.map((item, idx) => (
                                         <div key={idx} className="relative">
@@ -520,23 +531,54 @@
                                                 <span className={item.highlight ? "text-emerald-400" : "text-slate-400"}>{item.value}%</span>
                                             </div>
                                             <div className="w-full bg-slate-800 rounded-full h-3 overflow-hidden">
-                                                <motion.div initial={{ width: 0 }} whileInView={{ width: item.width }} transition={{ duration: 1, delay: 0.2 }} className={`h-full rounded-full ${item.color}`} />
+                                                <motion.div 
+                                                    initial={{ width: 0 }}
+                                                    whileInView={{ width: item.width }}
+                                                    transition={{ duration: 1, delay: 0.2 }}
+                                                    className={`h-full rounded-full ${item.color}`}
+                                                />
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             </div>
-                            <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
-                                <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2"><Icon name="dollar-sign" size={18} className="text-slate-400" />O "Efeito Alavanca" (Público vs Privado)</h3>
-                                <p className="text-slate-400 text-sm mb-6 leading-relaxed">Quanto o setor privado investe para cada R$ 1 público?</p>
-                                <div className="flex items-end justify-around h-48 border-b border-slate-700 pb-2 px-2">
-                                    {leverageData.map((item, idx) => (
-                                        <div key={idx} className="flex flex-col items-center gap-2 w-full group">
-                                            <span className={`text-sm font-bold ${item.highlight ? 'text-emerald-400 scale-110' : 'text-slate-400'} transition-transform`}>{item.multiplier}x</span>
-                                            <motion.div initial={{ height: 0 }} whileInView={{ height: item.height.replace('h-', '') * 4 }} className={`w-12 md:w-16 rounded-t-lg ${item.color} ${item.highlight ? 'shadow-[0_0_20px_-5px_rgba(16,185,129,0.6)]' : 'opacity-80'}`} style={{ height: item.multiplier * 12 }} />
-                                            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{item.label}</span>
-                                        </div>
-                                    ))}
+                            
+                            {/* Gráfico 2 e Insight Estratégico */}
+                            <div className="flex flex-col gap-4">
+                                <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 flex-1">
+                                    <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
+                                        <Icon name="dollar-sign" size={18} className="text-slate-400" />
+                                        O "Efeito Alavanca" (Público vs Privado)
+                                    </h3>
+                                    <p className="text-slate-400 text-sm mb-6 leading-relaxed">
+                                        Quanto o setor privado investe para cada R$ 1 público?
+                                        <br/>
+                                        Nos EUA, o governo estimula 10x mais investimento privado. No Brasil, apenas 2x. A estratégia visa corrigir essa assimetria com incentivos.
+                                    </p>
+                                    <div className="flex items-end justify-around h-32 border-b border-slate-700 pb-2 px-2">
+                                        {leverageData.map((item, idx) => (
+                                            <div key={idx} className="flex flex-col items-center gap-2 w-full group">
+                                                <span className={`text-sm font-bold ${item.highlight ? 'text-emerald-400 scale-110' : 'text-slate-400'} transition-transform`}>{item.multiplier}x</span>
+                                                <motion.div 
+                                                    initial={{ height: 0 }}
+                                                    whileInView={{ height: item.height.replace('h-', '') * 3 }} 
+                                                    className={`w-8 md:w-12 rounded-t-lg ${item.color} ${item.highlight ? 'shadow-[0_0_20px_-5px_rgba(16,185,129,0.6)]' : 'opacity-80'}`}
+                                                    style={{ height: item.multiplier * 8 }} 
+                                                />
+                                                <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">{item.label}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                {/* Novo Box de Insight */}
+                                <div className="bg-emerald-900/20 border border-emerald-500/30 p-4 rounded-xl flex gap-3">
+                                    <Icon name="lightbulb" className="text-emerald-400 flex-shrink-0" size={24} />
+                                    <div>
+                                        <h4 className="text-emerald-400 text-sm font-bold uppercase mb-1">Insight Estratégico</h4>
+                                        <p className="text-slate-300 text-xs leading-relaxed">
+                                            O problema não é apenas o governo gastar pouco, é a falta de estímulo para a empresa investir junto. O segredo do sucesso americano e coreano foi criar um ambiente onde cada dólar público multiplica o capital privado.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -547,26 +589,44 @@
                         <div className="flex items-center gap-3 mb-8 pl-2 border-l-4 border-purple-500 ml-4 lg:ml-0">
                             <Icon name="compass" className="text-purple-400" size={32} />
                             <div>
-                                <h2 className="text-2xl md:text-3xl font-bold text-white">6. Simulador de Futuros</h2>
+                                <h2 className="text-2xl md:text-3xl font-bold text-white">6. Simulador de Futuros: A Matriz ENCTI</h2>
                                 <p className="text-slate-400 text-sm">Defina os parâmetros e descubra qual futuro aguarda o Brasil</p>
                             </div>
                         </div>
+                        
+                        {/* NOVO: Parágrafo Didático */}
+                        <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 mb-8 ml-4 lg:ml-8">
+                            <p className="text-slate-300 leading-relaxed">
+                                O futuro não está escrito; ele é construído por escolhas presentes. A ENCTI trabalha com cenários. Este simulador permite visualizar como a combinação de <strong>Recursos</strong> (Investimento) e <strong>Organização</strong> (Governança) define o destino da nação. Qual Brasil vamos construir?
+                            </p>
+                        </div>
+
                         <div className="ml-4 lg:ml-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
                             <div className="lg:col-span-4 space-y-6">
                                 <div className="p-6 rounded-2xl bg-slate-800 border border-slate-700">
                                     <div className="flex items-center gap-2 mb-4 text-emerald-400"><Icon name="dollar-sign" size={20} /><h3 className="font-bold">Investimento em P&D</h3></div>
                                     <p className="text-xs text-slate-400 mb-4 h-10">{simInvestment ? "Meta Atingida: 2% do PIB, com forte participação privada e FNDCT estável." : "Cenário Atual: Contingenciamento, instabilidade e dependência de verba pública."}</p>
                                     <div className="flex items-center justify-between bg-slate-900 p-1 rounded-full border border-slate-700">
-                                        <button onClick={() => setSimInvestment(false)} className={`flex-1 py-2 rounded-full text-xs font-bold transition-all ${!simInvestment ? 'bg-slate-700 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}>Baixo</button>
-                                        <button onClick={() => setSimInvestment(true)} className={`flex-1 py-2 rounded-full text-xs font-bold transition-all ${simInvestment ? 'bg-emerald-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}>Alto</button>
+                                        <button onClick={() => setSimInvestment(false)} className={`flex-1 py-2 rounded-full text-xs font-bold transition-all ${!simInvestment ? 'bg-slate-700 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}>Baixo / Instável</button>
+                                        <button onClick={() => setSimInvestment(true)} className={`flex-1 py-2 rounded-full text-xs font-bold transition-all ${simInvestment ? 'bg-emerald-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}>Alto / 2% PIB</button>
                                     </div>
                                 </div>
                                 <div className="p-6 rounded-2xl bg-slate-800 border border-slate-700">
-                                    <div className="flex items-center gap-2 mb-4 text-blue-400"><Icon name="sliders" size={20} /><h3 className="font-bold">Governança</h3></div>
+                                    <div className="flex items-center gap-2 mb-4 text-blue-400"><Icon name="sliders" size={20} /><h3 className="font-bold">Governança do Sistema</h3></div>
                                     <p className="text-xs text-slate-400 mb-4 h-10">{simGovernance ? "Integrada: Missões claras, articulação entre Ministérios e Foco em Resultados." : "Fragmentada: Ações isoladas, sobreposição de esforços e burocracia excessiva."}</p>
                                     <div className="flex items-center justify-between bg-slate-900 p-1 rounded-full border border-slate-700">
                                         <button onClick={() => setSimGovernance(false)} className={`flex-1 py-2 rounded-full text-xs font-bold transition-all ${!simGovernance ? 'bg-slate-700 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}>Isolada</button>
                                         <button onClick={() => setSimGovernance(true)} className={`flex-1 py-2 rounded-full text-xs font-bold transition-all ${simGovernance ? 'bg-blue-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}>Integrada</button>
+                                    </div>
+                                </div>
+                                {/* Novo Box de Análise */}
+                                <div className="bg-purple-900/20 border border-purple-500/30 p-4 rounded-xl flex gap-3">
+                                    <Icon name="search" className="text-purple-400 flex-shrink-0" size={24} />
+                                    <div>
+                                        <h4 className="text-purple-400 text-sm font-bold uppercase mb-1">Análise do Especialista</h4>
+                                        <p className="text-slate-300 text-xs leading-relaxed">
+                                            Note que dinheiro sozinho sem direção gera desperdício. Por outro lado, organização sem recursos gera estagnação. A soberania só é atingida no equilíbrio do quadrante superior.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
